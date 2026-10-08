@@ -5,6 +5,6 @@
   service_role key는 절대로 여기에 넣지 마세요.
 */
 window.VOTE_CONFIG = {
-  SUPABASE_URL: "YOUR_SUPABASE_URL",
-  SUPABASE_ANON_KEY: "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY"
+  SUPABASE_URL: "https://cdveejymrjdbchxkjfew.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_Ak4LNoVRjnORv7AxcbqbPw_VOWf3dz4"
 };
