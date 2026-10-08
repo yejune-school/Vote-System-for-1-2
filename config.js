@@ -1,13 +1,11 @@
 /*
   IMPORTANT:
-  이 파일에 Supabase URL과 Publishable/Anon Key를 입력하세요.
-  Supabase의 Publishable/Anon Key는 브라우저에 노출될 수 있습니다.
-  service_role key는 절대로 여기에 넣지 마세요.
+  Supabase URL / Anon(Publishable) Key
+  service_role key는 절대 넣지 마세요.
 */
 window.VOTE_CONFIG = {
   SUPABASE_URL: "https://cdveejymrjdbchxkjfew.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_Ak4LNoVRjnORv7AxcbqbPw_VOWf3dz4"
-  // 관리자 이메일 목록 (투표 제목/후보 수정 가능)
+  SUPABASE_ANON_KEY: "sb_publishable_Ak4LNoVRjnORv7AxcbqbPw_VOWf3dz4",
   ADMIN_EMAILS: [
     "sj10225@dge.go.kr"
   ]

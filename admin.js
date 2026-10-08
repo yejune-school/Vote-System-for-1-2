@@ -31,6 +31,14 @@ function isAdmin(user) {
   return admins.includes(email);
 }
 
+function getRedirectUrl(filename) {
+  const path = window.location.pathname;
+  const base = path.endsWith("/")
+    ? path
+    : path.replace(/\/[^/]*$/, "/");
+  return window.location.origin + base + (filename || "index.html");
+}
+
 function cleanAuthHash() {
   if (window.location.hash && /access_token|refresh_token|error=/.test(window.location.hash)) {
     const clean = window.location.pathname + window.location.search;
@@ -48,10 +56,9 @@ function escapeHtml(value) {
 }
 
 async function login() {
-  const redirectTo = window.location.origin + "/admin.html";
   const { error } = await client.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo }
+    options: { redirectTo: getRedirectUrl("admin.html") }
   });
   if (error) showToast(error.message);
 }
@@ -249,7 +256,7 @@ async function init() {
   await loadCandidates();
 }
 
-client.auth.onAuthStateChange((event, session) => {
+client.auth.onAuthStateChange((event) => {
   if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
     cleanAuthHash();
     init();

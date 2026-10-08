@@ -28,6 +28,15 @@ function isAdmin(user) {
   return admins.includes(email);
 }
 
+/** GitHub Pages 하위 경로 지원 (예: /Vote-System-for-1-2/) */
+function getRedirectUrl(filename) {
+  const path = window.location.pathname;
+  const base = path.endsWith("/")
+    ? path
+    : path.replace(/\/[^/]*$/, "/");
+  return window.location.origin + base + (filename || "index.html");
+}
+
 /** OAuth 후 URL에 남는 #access_token=... 해시 제거 */
 function cleanAuthHash() {
   if (window.location.hash && /access_token|refresh_token|error=/.test(window.location.hash)) {
@@ -37,7 +46,7 @@ function cleanAuthHash() {
 }
 
 async function login() {
-  const redirectTo = window.location.origin + (window.location.pathname.includes("index") ? window.location.pathname : "/index.html");
+  const redirectTo = getRedirectUrl("index.html");
   const { error } = await client.auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo }
@@ -158,7 +167,6 @@ function escapeHtml(value) {
 
 async function init() {
   cleanAuthHash();
-
   await loadSettings();
 
   const { data: { session } } = await client.auth.getSession();
@@ -181,11 +189,7 @@ async function init() {
   userName.textContent = user.user_metadata?.full_name || user.email || "로그인됨";
 
   if (adminLink) {
-    if (isAdmin(user)) {
-      adminLink.classList.remove("hidden");
-    } else {
-      adminLink.classList.add("hidden");
-    }
+    adminLink.classList.toggle("hidden", !isAdmin(user));
   }
 
   await loadCandidates(user);
@@ -196,9 +200,7 @@ client.auth.onAuthStateChange((event, session) => {
     cleanAuthHash();
     if (session) init();
   }
-  if (event === "SIGNED_OUT") {
-    init();
-  }
+  if (event === "SIGNED_OUT") init();
 });
 
 init();

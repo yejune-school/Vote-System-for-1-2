@@ -25,7 +25,14 @@
       window.VOTE_CONFIG.SUPABASE_ANON_KEY
     );
 
-    // OAuth 해시가 남아 있으면 정리 후 index로
+    function getRedirectUrl(filename) {
+      const path = window.location.pathname;
+      const base = path.endsWith("/")
+        ? path
+        : path.replace(/\/[^/]*$/, "/");
+      return window.location.origin + base + (filename || "index.html");
+    }
+
     if (window.location.hash && /access_token|refresh_token/.test(window.location.hash)) {
       window.history.replaceState({}, document.title, window.location.pathname);
       location.href = "index.html";
@@ -34,9 +41,7 @@
     document.getElementById("googleLogin").addEventListener("click", async () => {
       const { error } = await client.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo: window.location.origin + "/index.html"
-        }
+        options: { redirectTo: getRedirectUrl("index.html") }
       });
       if (error) alert(error.message);
     });
