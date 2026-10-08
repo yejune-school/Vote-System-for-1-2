@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>투표 결과 — VOTE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">VOTE</a>
+    <a href="index.html" class="ghost">투표하기</a>
+  </header>
+
+  <main class="container">
+    <section class="hero compact">
+      <span class="badge">RESULT</span>
+      <h1>투표 결과</h1>
+      <p>현재까지 집계된 투표 결과입니다.</p>
+    </section>
+
+    <section class="card">
+      <div id="resultList" class="results"></div>
+      <p id="resultMessage" class="muted"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="result.js"></script>
+</body>
+</html>
