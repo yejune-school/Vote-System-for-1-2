@@ -25,6 +25,12 @@
       window.VOTE_CONFIG.SUPABASE_ANON_KEY
     );
 
+    // OAuth 해시가 남아 있으면 정리 후 index로
+    if (window.location.hash && /access_token|refresh_token/.test(window.location.hash)) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      location.href = "index.html";
+    }
+
     document.getElementById("googleLogin").addEventListener("click", async () => {
       const { error } = await client.auth.signInWithOAuth({
         provider: "google",

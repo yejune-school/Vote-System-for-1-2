@@ -3,9 +3,34 @@ const client = supabase.createClient(
   window.VOTE_CONFIG.SUPABASE_ANON_KEY
 );
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+async function loadSettings() {
+  const { data } = await client
+    .from("vote_settings")
+    .select("title")
+    .eq("id", 1)
+    .maybeSingle();
+
+  if (data?.title) {
+    const h1 = document.querySelector(".hero h1");
+    if (h1) h1.textContent = data.title + " 결과";
+    document.title = data.title + " — 투표 결과";
+  }
+}
+
 async function loadResults() {
   const resultList = document.getElementById("resultList");
   const message = document.getElementById("resultMessage");
+
+  await loadSettings();
 
   const { data: candidates, error: candidateError } = await client
     .from("candidates")
@@ -27,13 +52,13 @@ async function loadResults() {
   }
 
   const counts = {};
-  votes.forEach(v => {
+  (votes || []).forEach(v => {
     counts[v.candidate_id] = (counts[v.candidate_id] || 0) + 1;
   });
 
-  const total = votes.length;
+  const total = (votes || []).length;
 
-  if (!candidates.length) {
+  if (!candidates?.length) {
     resultList.innerHTML = '<div class="empty">등록된 후보가 없습니다.</div>';
     return;
   }
@@ -60,15 +85,6 @@ async function loadResults() {
   }).join("");
 
   message.textContent = `총 ${total}표`;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 loadResults();

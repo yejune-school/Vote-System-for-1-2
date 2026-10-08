@@ -12,6 +12,9 @@ const voteSection = document.getElementById("voteSection");
 const candidateList = document.getElementById("candidateList");
 const voteStatus = document.getElementById("voteStatus");
 const toast = document.getElementById("toast");
+const adminLink = document.getElementById("adminLink");
+const heroTitle = document.getElementById("heroTitle");
+const heroDesc = document.getElementById("heroDesc");
 
 function showToast(message) {
   toast.textContent = message;
@@ -19,12 +22,25 @@ function showToast(message) {
   setTimeout(() => toast.classList.remove("show"), 2800);
 }
 
+function isAdmin(user) {
+  const email = (user?.email || "").toLowerCase();
+  const admins = (window.VOTE_CONFIG.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+  return admins.includes(email);
+}
+
+/** OAuth 후 URL에 남는 #access_token=... 해시 제거 */
+function cleanAuthHash() {
+  if (window.location.hash && /access_token|refresh_token|error=/.test(window.location.hash)) {
+    const clean = window.location.pathname + window.location.search;
+    window.history.replaceState({}, document.title, clean || "/");
+  }
+}
+
 async function login() {
+  const redirectTo = window.location.origin + (window.location.pathname.includes("index") ? window.location.pathname : "/index.html");
   const { error } = await client.auth.signInWithOAuth({
     provider: "google",
-    options: {
-      redirectTo: window.location.origin + "/index.html"
-    }
+    options: { redirectTo }
   });
   if (error) showToast(error.message);
 }
@@ -38,6 +54,20 @@ loginBtn?.addEventListener("click", login);
 loginBtn2?.addEventListener("click", login);
 logoutBtn?.addEventListener("click", logout);
 
+async function loadSettings() {
+  const { data } = await client
+    .from("vote_settings")
+    .select("title, description")
+    .eq("id", 1)
+    .maybeSingle();
+
+  if (data) {
+    if (heroTitle) heroTitle.textContent = data.title || "투표에 참여하세요.";
+    if (heroDesc) heroDesc.textContent = data.description || "";
+    document.title = (data.title || "Vote") + " — 투표";
+  }
+}
+
 async function loadCandidates(user) {
   const { data: candidates, error } = await client
     .from("candidates")
@@ -45,7 +75,7 @@ async function loadCandidates(user) {
     .order("id");
 
   if (error) {
-    candidateList.innerHTML = `<div class="empty">후보를 불러오지 못했습니다.<br>${error.message}</div>`;
+    candidateList.innerHTML = `<div class="empty">후보를 불러오지 못했습니다.<br>${escapeHtml(error.message)}</div>`;
     return;
   }
 
@@ -57,6 +87,8 @@ async function loadCandidates(user) {
 
   if (myVote) {
     voteStatus.textContent = "이미 투표했습니다. 한 사람당 한 표만 가능합니다.";
+  } else {
+    voteStatus.textContent = "한 사람당 한 표입니다.";
   }
 
   candidateList.innerHTML = "";
@@ -125,29 +157,48 @@ function escapeHtml(value) {
 }
 
 async function init() {
+  cleanAuthHash();
+
+  await loadSettings();
+
   const { data: { session } } = await client.auth.getSession();
 
   if (!session?.user) {
-    loginNotice.classList.remove("hidden");
-    voteSection.classList.add("hidden");
-    loginBtn.classList.remove("hidden");
-    logoutBtn.classList.add("hidden");
+    loginNotice?.classList.remove("hidden");
+    voteSection?.classList.add("hidden");
+    loginBtn?.classList.remove("hidden");
+    logoutBtn?.classList.add("hidden");
+    adminLink?.classList.add("hidden");
     return;
   }
 
-  loginNotice.classList.add("hidden");
-  voteSection.classList.remove("hidden");
-  loginBtn.classList.add("hidden");
-  logoutBtn.classList.remove("hidden");
+  loginNotice?.classList.add("hidden");
+  voteSection?.classList.remove("hidden");
+  loginBtn?.classList.add("hidden");
+  logoutBtn?.classList.remove("hidden");
 
   const user = session.user;
   userName.textContent = user.user_metadata?.full_name || user.email || "로그인됨";
 
+  if (adminLink) {
+    if (isAdmin(user)) {
+      adminLink.classList.remove("hidden");
+    } else {
+      adminLink.classList.add("hidden");
+    }
+  }
+
   await loadCandidates(user);
 }
 
-client.auth.onAuthStateChange((_event, session) => {
-  if (session) init();
+client.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+    cleanAuthHash();
+    if (session) init();
+  }
+  if (event === "SIGNED_OUT") {
+    init();
+  }
 });
 
 init();

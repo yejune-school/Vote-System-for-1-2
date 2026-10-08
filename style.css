@@ -344,3 +344,71 @@ p {
     padding: 30px 22px;
   }
 }
+
+/* Admin */
+.admin-card {
+  margin-bottom: 24px;
+}
+
+.admin-card h2 {
+  margin-bottom: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.field span {
+  font-size: 13px;
+  font-weight: 650;
+  color: #555;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid #dfe1e6;
+  border-radius: 11px;
+  font: inherit;
+  background: #fafbfc;
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: #5368e8;
+  background: white;
+}
+
+.admin-list {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-item {
+  padding: 18px;
+  border: 1px solid #e8e9ed;
+  border-radius: 16px;
+  background: #fafbfc;
+}
+
+.admin-item-fields {
+  margin-bottom: 12px;
+}
+
+.admin-item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.danger {
+  color: #c0392b !important;
+  border-color: #f0c4c0 !important;
+}
+
+.danger:hover {
+  background: #fff5f5;
+}
