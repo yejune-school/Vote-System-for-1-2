@@ -5,8 +5,8 @@
 */
 window.VOTE_CONFIG = {
   SUPABASE_URL: "https://cdveejymrjdbchxkjfew.supabase.co",
-  SUPABASE_ANON_KEY: "여기에_본인의_Supabase_Publishable_또는_Anon_Key",
+  SUPABASE_ANON_KEY: "sb_publishable_Ak4LNoVRjnORv7AxcbqbPw_VOWf3dz4",
   ADMIN_EMAILS: [
-    "여기에_관리자_Google_이메일"
+    "sj10225@dge.go.kr"
   ]
 };
