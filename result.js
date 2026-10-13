@@ -12,69 +12,47 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-async function loadSettings() {
-  const { data } = await client
+async function loadResults() {
+  const resultList = document.getElementById("resultList");
+  const message = document.getElementById("resultMessage");
+
+  const { data: settings } = await client
     .from("vote_settings")
     .select("title")
     .eq("id", 1)
     .maybeSingle();
 
-  if (data?.title) {
+  if (settings?.title) {
     const h1 = document.querySelector(".hero h1");
-    if (h1) h1.textContent = data.title + " 결과";
-    document.title = data.title + " — 투표 결과";
+    if (h1) h1.textContent = settings.title + " 결과";
+    document.title = settings.title + " — 투표 결과";
   }
-}
 
-async function loadResults() {
-  const resultList = document.getElementById("resultList");
-  const message = document.getElementById("resultMessage");
+  // 결과 화면은 votes 원본 행을 읽지 않고 RPC로 집계 결과만 받습니다.
+  const { data, error } = await client.rpc("get_vote_results");
 
-  await loadSettings();
-
-  const { data: candidates, error: candidateError } = await client
-    .from("candidates")
-    .select("*")
-    .order("id");
-
-  if (candidateError) {
-    message.textContent = candidateError.message;
+  if (error) {
+    message.textContent = "결과를 불러오지 못했습니다: " + error.message;
     return;
   }
 
-  const { data: votes, error: voteError } = await client
-    .from("votes")
-    .select("candidate_id");
+  const rows = [
+    { choice: "찬성", icon: "✓" },
+    { choice: "반대", icon: "×" },
+    { choice: "기권", icon: "—" }
+  ];
 
-  if (voteError) {
-    message.textContent = voteError.message;
-    return;
-  }
+  const counts = Object.fromEntries((data || []).map(row => [row.choice, Number(row.vote_count)]));
+  const total = rows.reduce((sum, row) => sum + (counts[row.choice] || 0), 0);
 
-  const counts = {};
-  (votes || []).forEach(v => {
-    counts[v.candidate_id] = (counts[v.candidate_id] || 0) + 1;
-  });
-
-  const total = (votes || []).length;
-
-  if (!candidates?.length) {
-    resultList.innerHTML = '<div class="empty">등록된 후보가 없습니다.</div>';
-    return;
-  }
-
-  const sorted = [...candidates].sort(
-    (a, b) => (counts[b.id] || 0) - (counts[a.id] || 0)
-  );
-
-  resultList.innerHTML = sorted.map((candidate, index) => {
-    const count = counts[candidate.id] || 0;
+  resultList.innerHTML = rows.map((row) => {
+    const count = counts[row.choice] || 0;
     const percent = total ? Math.round((count / total) * 100) : 0;
 
     return `
       <div class="result-row">
         <div class="result-top">
-          <strong>${index + 1}. ${escapeHtml(candidate.name)}</strong>
+          <strong>${row.icon} ${escapeHtml(row.choice)}</strong>
           <span>${count}표 · ${percent}%</span>
         </div>
         <div class="bar">

@@ -3,23 +3,11 @@ const client = supabase.createClient(
   window.VOTE_CONFIG.SUPABASE_ANON_KEY
 );
 
-const userName = document.getElementById("userName");
-const logoutBtn = document.getElementById("logoutBtn");
-const loginBtn = document.getElementById("loginBtn");
-const loginNotice = document.getElementById("loginNotice");
-const deniedNotice = document.getElementById("deniedNotice");
-const adminPanel = document.getElementById("adminPanel");
-const toast = document.getElementById("toast");
-const settingTitle = document.getElementById("settingTitle");
-const settingDesc = document.getElementById("settingDesc");
-const saveSettingsBtn = document.getElementById("saveSettingsBtn");
-const newName = document.getElementById("newName");
-const newDesc = document.getElementById("newDesc");
-const newImage = document.getElementById("newImage");
-const addCandidateBtn = document.getElementById("addCandidateBtn");
-const adminCandidateList = document.getElementById("adminCandidateList");
+const $ = id => document.getElementById(id);
 
 function showToast(message) {
+  const toast = $("toast");
+  if (!toast) return;
   toast.textContent = message;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 2800);
@@ -27,32 +15,22 @@ function showToast(message) {
 
 function isAdmin(user) {
   const email = (user?.email || "").toLowerCase();
-  const admins = (window.VOTE_CONFIG.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-  return admins.includes(email);
+  return (window.VOTE_CONFIG.ADMIN_EMAILS || [])
+    .map(e => String(e).trim().toLowerCase())
+    .includes(email);
 }
 
-function getRedirectUrl(filename) {
+function getRedirectUrl(filename = "admin.html") {
   const path = window.location.pathname;
-  const base = path.endsWith("/")
-    ? path
-    : path.replace(/\/[^/]*$/, "/");
-  return window.location.origin + base + (filename || "index.html");
+  const base = path.endsWith("/") ? path : path.replace(/\/[^/]*$/, "/");
+  return window.location.origin + base + filename;
 }
 
 function cleanAuthHash() {
   if (window.location.hash && /access_token|refresh_token|error=/.test(window.location.hash)) {
-    const clean = window.location.pathname + window.location.search;
-    window.history.replaceState({}, document.title, clean || "/");
+    window.history.replaceState({}, document.title,
+      window.location.pathname + window.location.search || "/");
   }
-}
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 async function login() {
@@ -68,8 +46,8 @@ async function logout() {
   location.reload();
 }
 
-loginBtn?.addEventListener("click", login);
-logoutBtn?.addEventListener("click", logout);
+$("loginBtn")?.addEventListener("click", login);
+$("logoutBtn")?.addEventListener("click", logout);
 
 async function loadSettings() {
   const { data, error } = await client
@@ -82,14 +60,15 @@ async function loadSettings() {
     showToast("설정을 불러오지 못했습니다: " + error.message);
     return;
   }
+
   if (data) {
-    settingTitle.value = data.title || "";
-    settingDesc.value = data.description || "";
+    $("settingTitle").value = data.title || "";
+    $("settingDesc").value = data.description || "";
   }
 }
 
 async function saveSettings() {
-  const title = settingTitle.value.trim();
+  const title = $("settingTitle").value.trim();
   if (!title) {
     showToast("제목을 입력하세요.");
     return;
@@ -99,7 +78,7 @@ async function saveSettings() {
     .from("vote_settings")
     .update({
       title,
-      description: settingDesc.value.trim(),
+      description: $("settingDesc").value.trim(),
       updated_at: new Date().toISOString()
     })
     .eq("id", 1);
@@ -108,122 +87,44 @@ async function saveSettings() {
     showToast("저장 실패: " + error.message);
     return;
   }
-  showToast("제목이 저장되었습니다.");
+
+  showToast("투표 설정이 저장되었습니다.");
 }
 
-saveSettingsBtn?.addEventListener("click", saveSettings);
-
-async function loadCandidates() {
-  const { data, error } = await client
-    .from("candidates")
-    .select("*")
-    .order("id");
+async function loadCounts() {
+  const { data, error } = await client.rpc("get_vote_results");
 
   if (error) {
-    adminCandidateList.innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`;
+    $("adminResults").textContent = "결과 불러오기 실패: " + error.message;
     return;
   }
 
-  if (!data?.length) {
-    adminCandidateList.innerHTML = `<div class="empty">등록된 후보가 없습니다.</div>`;
-    return;
-  }
-
-  adminCandidateList.innerHTML = data.map(c => `
-    <div class="admin-item" data-id="${c.id}">
-      <div class="admin-item-fields">
-        <label class="field">
-          <span>이름</span>
-          <input class="edit-name" type="text" value="${escapeHtml(c.name)}">
-        </label>
-        <label class="field">
-          <span>설명</span>
-          <textarea class="edit-desc" rows="2">${escapeHtml(c.description || "")}</textarea>
-        </label>
-        <label class="field">
-          <span>이미지 URL</span>
-          <input class="edit-image" type="url" value="${escapeHtml(c.image_url || "")}" placeholder="https://...">
-        </label>
-      </div>
-      <div class="admin-item-actions">
-        <button class="primary save-btn">저장</button>
-        <button class="ghost danger delete-btn">삭제</button>
-      </div>
+  const counts = Object.fromEntries((data || []).map(row => [row.choice, Number(row.vote_count)]));
+  $("adminResults").innerHTML = `
+    <div class="admin-counts">
+      <div><strong>찬성</strong><span>${counts["찬성"] || 0}표</span></div>
+      <div><strong>반대</strong><span>${counts["반대"] || 0}표</span></div>
+      <div><strong>기권</strong><span>${counts["기권"] || 0}표</span></div>
     </div>
-  `).join("");
-
-  adminCandidateList.querySelectorAll(".admin-item").forEach(item => {
-    const id = Number(item.dataset.id);
-    item.querySelector(".save-btn").addEventListener("click", () => updateCandidate(id, item));
-    item.querySelector(".delete-btn").addEventListener("click", () => deleteCandidate(id));
-  });
+  `;
 }
 
-async function updateCandidate(id, item) {
-  const name = item.querySelector(".edit-name").value.trim();
-  const description = item.querySelector(".edit-desc").value.trim();
-  const image_url = item.querySelector(".edit-image").value.trim() || null;
+async function resetVotes() {
+  if (!confirm("모든 투표를 초기화할까요?\n이 작업은 되돌릴 수 없습니다.")) return;
 
-  if (!name) {
-    showToast("이름은 필수입니다.");
-    return;
-  }
-
-  const { error } = await client
-    .from("candidates")
-    .update({ name, description, image_url })
-    .eq("id", id);
+  const { error } = await client.rpc("reset_votes");
 
   if (error) {
-    showToast("수정 실패: " + error.message);
+    showToast("초기화 실패: " + error.message);
     return;
   }
-  showToast("후보가 수정되었습니다.");
-  await loadCandidates();
+
+  showToast("모든 투표가 초기화되었습니다.");
+  await loadCounts();
 }
 
-async function deleteCandidate(id) {
-  if (!confirm("이 후보를 삭제하시겠습니까? 관련 투표도 함께 삭제됩니다.")) return;
-
-  const { error } = await client
-    .from("candidates")
-    .delete()
-    .eq("id", id);
-
-  if (error) {
-    showToast("삭제 실패: " + error.message);
-    return;
-  }
-  showToast("후보가 삭제되었습니다.");
-  await loadCandidates();
-}
-
-async function addCandidate() {
-  const name = newName.value.trim();
-  if (!name) {
-    showToast("이름을 입력하세요.");
-    return;
-  }
-
-  const { error } = await client.from("candidates").insert({
-    name,
-    description: newDesc.value.trim() || null,
-    image_url: newImage.value.trim() || null
-  });
-
-  if (error) {
-    showToast("추가 실패: " + error.message);
-    return;
-  }
-
-  newName.value = "";
-  newDesc.value = "";
-  newImage.value = "";
-  showToast("후보가 추가되었습니다.");
-  await loadCandidates();
-}
-
-addCandidateBtn?.addEventListener("click", addCandidate);
+$("saveSettingsBtn")?.addEventListener("click", saveSettings);
+$("resetVotesBtn")?.addEventListener("click", resetVotes);
 
 async function init() {
   cleanAuthHash();
@@ -231,36 +132,34 @@ async function init() {
   const { data: { session } } = await client.auth.getSession();
 
   if (!session?.user) {
-    loginNotice.classList.remove("hidden");
-    deniedNotice.classList.add("hidden");
-    adminPanel.classList.add("hidden");
-    logoutBtn.classList.add("hidden");
+    $("loginNotice")?.classList.remove("hidden");
+    $("deniedNotice")?.classList.add("hidden");
+    $("adminPanel")?.classList.add("hidden");
+    $("logoutBtn")?.classList.add("hidden");
     return;
   }
 
-  logoutBtn.classList.remove("hidden");
-  userName.textContent = session.user.user_metadata?.full_name || session.user.email || "로그인됨";
+  $("logoutBtn")?.classList.remove("hidden");
+  $("userName").textContent =
+    session.user.user_metadata?.full_name || session.user.email || "로그인됨";
 
   if (!isAdmin(session.user)) {
-    loginNotice.classList.add("hidden");
-    deniedNotice.classList.remove("hidden");
-    adminPanel.classList.add("hidden");
+    $("loginNotice")?.classList.add("hidden");
+    $("deniedNotice")?.classList.remove("hidden");
+    $("adminPanel")?.classList.add("hidden");
     return;
   }
 
-  loginNotice.classList.add("hidden");
-  deniedNotice.classList.add("hidden");
-  adminPanel.classList.remove("hidden");
+  $("loginNotice")?.classList.add("hidden");
+  $("deniedNotice")?.classList.add("hidden");
+  $("adminPanel")?.classList.remove("hidden");
 
   await loadSettings();
-  await loadCandidates();
+  await loadCounts();
 }
 
 client.auth.onAuthStateChange((event) => {
-  if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
-    cleanAuthHash();
-    init();
-  }
+  if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") init();
   if (event === "SIGNED_OUT") init();
 });
 

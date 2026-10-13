@@ -7,76 +7,64 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="logo" href="index.html">VOTE</a>
-    <div class="account">
-      <span id="userName"></span>
-      <a href="index.html" class="ghost">투표하기</a>
-      <button id="logoutBtn" class="ghost hidden">로그아웃</button>
-    </div>
-  </header>
+<header class="topbar">
+  <a class="logo" href="index.html">VOTE</a>
+  <div class="account">
+    <span id="userName"></span>
+    <a href="index.html" class="ghost">투표하기</a>
+    <button id="logoutBtn" class="ghost hidden">로그아웃</button>
+  </div>
+</header>
 
-  <main class="container">
-    <section class="hero compact">
-      <span class="badge">ADMIN</span>
-      <h1>관리자</h1>
-      <p>투표 제목과 후보를 관리합니다. 관리자만 접근할 수 있습니다.</p>
+<main class="container">
+  <section class="hero compact">
+    <span class="badge">ADMIN</span>
+    <h1>관리자</h1>
+    <p>투표 제목, 설명, 결과와 투표 초기화를 관리합니다.</p>
+  </section>
+
+  <section id="loginNotice" class="card notice hidden">
+    <h2>로그인이 필요합니다</h2>
+    <p>관리자 기능은 로그인 후 이용할 수 있습니다.</p>
+    <button id="loginBtn" class="primary">Google로 로그인</button>
+  </section>
+
+  <section id="deniedNotice" class="card notice hidden">
+    <h2>권한이 없습니다</h2>
+    <p>이 계정은 관리자가 아닙니다.</p>
+    <a href="index.html" class="primary inline-button">돌아가기</a>
+  </section>
+
+  <div id="adminPanel" class="hidden">
+    <section class="card admin-card">
+      <h2>투표 제목 / 설명</h2>
+      <label class="field">
+        <span>제목</span>
+        <input id="settingTitle" type="text" placeholder="예: 1-2반 학급 안건 투표">
+      </label>
+      <label class="field">
+        <span>설명</span>
+        <textarea id="settingDesc" rows="3" placeholder="투표 안내 문구"></textarea>
+      </label>
+      <button id="saveSettingsBtn" class="primary">저장</button>
     </section>
 
-    <section id="loginNotice" class="card notice hidden">
-      <h2>로그인이 필요합니다</h2>
-      <p>관리자 기능은 로그인 후 이용할 수 있습니다.</p>
-      <button id="loginBtn" class="primary">Google로 로그인</button>
+    <section class="card admin-card">
+      <h2>현재 결과</h2>
+      <div id="adminResults" class="admin-counts"></div>
     </section>
 
-    <section id="deniedNotice" class="card notice hidden">
-      <h2>권한이 없습니다</h2>
-      <p>이 계정은 관리자가 아닙니다.</p>
-      <a href="index.html" class="primary" style="display:inline-block;text-decoration:none;margin-top:12px">돌아가기</a>
+    <section class="card admin-card">
+      <h2>투표 초기화</h2>
+      <p>현재 저장된 모든 투표를 삭제합니다. 삭제 후에는 되돌릴 수 없습니다.</p>
+      <button id="resetVotesBtn" class="primary danger-button">모든 투표 초기화</button>
     </section>
+  </div>
+</main>
 
-    <div id="adminPanel" class="hidden">
-      <section class="card admin-card">
-        <h2>투표 제목 / 설명</h2>
-        <label class="field">
-          <span>제목</span>
-          <input id="settingTitle" type="text" placeholder="예: 2026 학생회장 선거">
-        </label>
-        <label class="field">
-          <span>설명</span>
-          <textarea id="settingDesc" rows="3" placeholder="투표 안내 문구"></textarea>
-        </label>
-        <button id="saveSettingsBtn" class="primary">제목 저장</button>
-      </section>
-
-      <section class="card admin-card">
-        <h2>후보 추가</h2>
-        <label class="field">
-          <span>이름 *</span>
-          <input id="newName" type="text" placeholder="후보 이름">
-        </label>
-        <label class="field">
-          <span>설명</span>
-          <textarea id="newDesc" rows="2" placeholder="후보 소개"></textarea>
-        </label>
-        <label class="field">
-          <span>이미지 URL (선택)</span>
-          <input id="newImage" type="url" placeholder="https://...">
-        </label>
-        <button id="addCandidateBtn" class="primary">후보 추가</button>
-      </section>
-
-      <section class="card admin-card">
-        <h2>등록된 후보</h2>
-        <div id="adminCandidateList" class="admin-list"></div>
-      </section>
-    </div>
-  </main>
-
-  <div id="toast" class="toast"></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="admin.js"></script>
+<div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>
