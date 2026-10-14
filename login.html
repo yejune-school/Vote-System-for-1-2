@@ -1,64 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
-
-  <title>로그인 - 탄핵 투표</title>
-
-  <link rel="stylesheet" href="style.css">
-
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>로그인 · 1-2 VOTE</title><link rel="stylesheet" href="style.css">
 </head>
-
-<body>
-
-<main class="login-page">
-
-  <div class="login-box">
-
-    <h1>
-      1-2 부반장 최지혁
-    </h1>
-
-    <h2>
-      탄핵 투표
-    </h2>
-
-    <p>
-      투표하려면 로그인해주세요.
-    </p>
-
-
-    <button
-      id="googleLogin"
-      class="login-button google">
-      Google로 로그인
-    </button>
-
-
-    <button
-      id="kakaoLogin"
-      class="login-button kakao">
-      카카오로 로그인
-    </button>
-
-  </div>
-
+<body class="login-body">
+<div class="bg-orb orb-a"></div><div class="bg-orb orb-b"></div>
+<main class="login-wrap">
+  <section class="login-card">
+    <div class="brand center"><span class="brand-mark">V</span><span>1-2 VOTE</span></div>
+    <div class="eyebrow">SECURE SIGN-IN</div>
+    <h1>투표에 참여하세요.</h1>
+    <p>Google 또는 카카오 계정으로 로그인하면<br>1인 1표 투표에 참여할 수 있습니다.</p>
+    <button id="googleLogin" class="oauth google"><span>G</span> Google로 계속하기</button>
+    <button id="kakaoLogin" class="oauth kakao"><span>●</span> 카카오로 계속하기</button>
+    <div class="login-note">로그인 정보는 투표 중복 방지를 위해 사용됩니다.</div>
+  </section>
 </main>
-
-
-<div id="toast"></div>
-
-
+<div id="toast" class="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="config.js"></script>
-
-<script src="app.js"></script>
-
+<script src="config.js"></script><script src="app.js"></script>
 </body>
 </html>

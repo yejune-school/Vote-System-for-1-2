@@ -1,70 +1,42 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>관리자 — VOTE</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>관리자 · 1-2 VOTE</title><link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="bg-orb orb-a"></div><div class="bg-orb orb-b"></div>
 <header class="topbar">
-  <a class="logo" href="index.html">VOTE</a>
-  <div class="account">
-    <span id="userName"></span>
-    <a href="index.html" class="ghost">투표하기</a>
-    <button id="logoutBtn" class="ghost hidden">로그아웃</button>
-  </div>
+  <a class="brand" href="./"><span class="brand-mark">V</span><span>1-2 VOTE</span></a>
+  <div class="top-actions"><a class="text-btn" href="./">투표 화면</a><button id="logoutButton" class="text-btn">로그아웃</button></div>
 </header>
+<main class="container admin-container">
+  <div class="page-title"><div class="eyebrow">ADMIN DASHBOARD</div><h1>투표 관리</h1><p>투표 제목과 설명, 상태 및 결과를 관리합니다.</p></div>
 
-<main class="container">
-  <section class="hero compact">
-    <span class="badge">ADMIN</span>
-    <h1>관리자</h1>
-    <p>투표 제목, 설명, 결과와 투표 초기화를 관리합니다.</p>
+  <section class="admin-grid">
+    <div class="panel settings-panel">
+      <div class="panel-head"><div><span class="label">CONTENT</span><h2>투표 내용</h2></div></div>
+      <label>제목<input id="settingTitle" type="text" maxlength="100"></label>
+      <label>설명<textarea id="settingDescription" rows="5" maxlength="300"></textarea></label>
+      <label class="switch-row"><span><b>투표 상태</b><small>끄면 일반 사용자는 투표할 수 없습니다.</small></span><input id="isOpen" type="checkbox"><i></i></label>
+      <button id="saveSettings" class="primary-btn">변경사항 저장</button>
+    </div>
+
+    <div class="panel results-panel">
+      <div class="panel-head"><div><span class="label">RESULT</span><h2>현재 결과</h2></div><span id="totalCount" class="total-pill">0명</span></div>
+      <div class="bar-row"><div><span>찬성</span><b id="agreeCount">0</b></div><div class="bar"><i id="agreeBar"></i></div></div>
+      <div class="bar-row"><div><span>반대</span><b id="disagreeCount">0</b></div><div class="bar"><i id="disagreeBar"></i></div></div>
+      <div class="bar-row"><div><span>기권</span><b id="abstainCount">0</b></div><div class="bar"><i id="abstainBar"></i></div></div>
+    </div>
   </section>
 
-  <section id="loginNotice" class="card notice hidden">
-    <h2>로그인이 필요합니다</h2>
-    <p>관리자 기능은 로그인 후 이용할 수 있습니다.</p>
-    <button id="loginBtn" class="primary">Google로 로그인</button>
+  <section class="panel danger-panel">
+    <div><span class="label">DANGER ZONE</span><h2>투표 데이터 초기화</h2><p>모든 투표 기록을 삭제합니다. 삭제 후에는 복구할 수 없습니다.</p></div>
+    <button id="resetVotes" class="danger-btn">전체 투표 초기화</button>
   </section>
-
-  <section id="deniedNotice" class="card notice hidden">
-    <h2>권한이 없습니다</h2>
-    <p>이 계정은 관리자가 아닙니다.</p>
-    <a href="index.html" class="primary inline-button">돌아가기</a>
-  </section>
-
-  <div id="adminPanel" class="hidden">
-    <section class="card admin-card">
-      <h2>투표 제목 / 설명</h2>
-      <label class="field">
-        <span>제목</span>
-        <input id="settingTitle" type="text" placeholder="예: 1-2반 학급 안건 투표">
-      </label>
-      <label class="field">
-        <span>설명</span>
-        <textarea id="settingDesc" rows="3" placeholder="투표 안내 문구"></textarea>
-      </label>
-      <button id="saveSettingsBtn" class="primary">저장</button>
-    </section>
-
-    <section class="card admin-card">
-      <h2>현재 결과</h2>
-      <div id="adminResults" class="admin-counts"></div>
-    </section>
-
-    <section class="card admin-card">
-      <h2>투표 초기화</h2>
-      <p>현재 저장된 모든 투표를 삭제합니다. 삭제 후에는 되돌릴 수 없습니다.</p>
-      <button id="resetVotesBtn" class="primary danger-button">모든 투표 초기화</button>
-    </section>
-  </div>
 </main>
-
 <div id="toast" class="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="admin.js"></script>
+<script src="config.js"></script><script src="admin.js"></script>
 </body>
 </html>

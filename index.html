@@ -1,104 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-  <title>1-2 부반장 최지혁 탄핵 투표</title>
-
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>부반장 탄핵 투표</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+  <div class="bg-orb orb-a"></div><div class="bg-orb orb-b"></div>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="brand-mark">V</span><span>1-2 VOTE</span></a>
+    <div class="top-actions">
+      <span id="userName" class="user-chip"></span>
+      <a id="adminButton" class="text-btn hidden" href="admin.html">관리자</a>
+      <button id="logoutButton" class="text-btn">로그아웃</button>
+    </div>
+  </header>
 
-<header>
-  <h1>1-2 부반장 최지혁 탄핵 투표</h1>
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">CLASS 1-2 · OFFICIAL VOTE</div>
+      <h1 id="title">1-2 부반장 최지혁 탄핵 투표</h1>
+      <p id="description">최지혁 학생의 1-2 부반장 탄핵에 대한 투표입니다.</p>
+      <div class="meta"><span class="dot"></span><span id="openState">투표 진행 중</span></div>
+    </section>
 
-  <div class="user-area">
-    <span id="userName"></span>
-    <button id="logoutButton">
-      로그아웃
-    </button>
-  </div>
-</header>
+    <section class="vote-card">
+      <div class="section-head">
+        <div><span class="label">YOUR VOTE</span><h2>하나를 선택해주세요</h2></div>
+        <span class="one-vote">1인 1표</span>
+      </div>
+      <p id="status" class="status">투표 상태를 확인하는 중...</p>
+      <div class="choices">
+        <button class="choice agree vote-button" data-choice="찬성">
+          <span class="choice-icon">✓</span><span><b>찬성</b><small>탄핵에 찬성합니다</small></span><span class="arrow">→</span>
+        </button>
+        <button class="choice disagree vote-button" data-choice="반대">
+          <span class="choice-icon">×</span><span><b>반대</b><small>탄핵에 반대합니다</small></span><span class="arrow">→</span>
+        </button>
+        <button class="choice abstain vote-button" data-choice="기권">
+          <span class="choice-icon">—</span><span><b>기권</b><small>투표를 기권합니다</small></span><span class="arrow">→</span>
+        </button>
+      </div>
+      <p class="notice">투표 후 선택을 변경할 수 없습니다.</p>
+    </section>
 
-
-<main>
-
-  <section class="hero">
-
-    <h2>
-      1-2 부반장 최지혁 탄핵 투표
-    </h2>
-
-    <p>
-      최지혁 학생의 1-2 부반장 탄핵에 대한 투표입니다.
-    </p>
-
-    <p id="status">
-      투표 상태 확인 중...
-    </p>
-
-  </section>
-
-
-  <section class="vote-box">
-
-    <button
-      class="vote-button agree"
-      data-choice="찬성">
-      찬성
-    </button>
-
-    <button
-      class="vote-button disagree"
-      data-choice="반대">
-      반대
-    </button>
-
-    <button
-      class="vote-button abstain"
-      data-choice="기권">
-      기권
-    </button>
-
-  </section>
-
-
-  <section
-    id="adminButton"
-    class="admin-panel hidden">
-
-    <h2>관리자</h2>
-
-    <button id="resultButton">
-      투표 결과 보기
-    </button>
-
-    <button id="resetButton">
-      투표 초기화
-    </button>
-
-  </section>
-
-
-  <section
-    id="result"
-    class="result hidden">
-  </section>
-
-</main>
-
-
-<div id="toast"></div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="config.js"></script>
-
-<script src="app.js"></script>
-
+    <footer>1-2 CLASS VOTING SYSTEM · Powered by Supabase</footer>
+  </main>
+  <div id="toast" class="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script><script src="app.js"></script>
 </body>
 </html>
